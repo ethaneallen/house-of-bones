@@ -126,13 +126,13 @@
         .player-col {
             background: var(--card);
             border-radius: 18px;
-            padding: 16px;
+            padding: 12px;
             border: 1px solid var(--line);
             box-shadow: 0 10px 25px var(--shadow);
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
@@ -147,23 +147,30 @@
             text-align: center;
             background: #f4f6ff;
             border-radius: 12px;
-            padding: 10px 12px;
+            padding: 8px 10px;
             font-weight: 700;
             font-size: 16px;
         }
 
         .score-area {
-            min-height: 100px;
             width: 100%;
+            max-width: 270px;
             cursor: pointer;
             border-radius: 16px;
             border: 1px dashed #c8d2f2;
             background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
-            padding: 8px;
             display: flex;
             flex-wrap: wrap;
             align-content: flex-start;
-            gap: 8px;
+            gap: 6px;
+            transition: padding 0.3s ease, min-height 0.3s ease;
+            margin: 0 auto;
+        }
+
+        @media (min-width: 768px) {
+            .score-area {
+                min-height: 200px;
+            }
         }
 
         .house { width: 80px; height: 80px; position: relative; margin: 0; flex-shrink: 0; }
@@ -182,7 +189,7 @@
             text-align: center;
             background: #fff6e8;
             border-radius: 12px;
-            padding: 10px 12px;
+            padding: 8px 10px;
             font-weight: 700;
             font-size: 20px;
         }
@@ -299,7 +306,7 @@
                 </svg>
                 <div>
                     <h1>House of Bones</h1>
-                    <div class="tagline">Bones on deck. Scores on lock</div>
+                    <div class="tagline">Bones on deck, Scores on lock</div>
                 </div>
             </div>
             <div class="controls">
@@ -334,7 +341,7 @@
 
             <div class="modal-actions">
                 <button type="button" class="secondary" id="cancel-btn">Cancel</button>
-                <button type="submit">Start Game</button>
+                <button type="submit" id="submit-btn">Start Game</button>
             </div>
         </form>
     </div>
@@ -357,6 +364,7 @@
         const setupTitle = document.getElementById('setup-title');
         const setupSubtitle = document.getElementById('setup-subtitle');
         const cancelBtn = document.getElementById('cancel-btn');
+        const submitBtn = document.getElementById('submit-btn');
 
         function openSetup() {
             isEditing = false;
@@ -369,6 +377,7 @@
             setupSubtitle.textContent = 'Set up players and the points to win.';
             targetInput.value = targetPoints || 150;
             cancelBtn.style.display = 'none';
+            submitBtn.textContent = 'Start Game';
             buildNameInputs();
         }
 
@@ -385,6 +394,7 @@
             setupTitle.textContent = 'Edit this match';
             setupSubtitle.textContent = 'Update player names or the target score.';
             cancelBtn.style.display = 'inline-flex';
+            submitBtn.textContent = 'Edit Game';
             buildNameInputs();
         }
 
@@ -450,6 +460,28 @@
             });
         }
 
+        function adjustScoreAreaSize(index, score) {
+            const area = document.getElementById(`area-${index}`);
+            if (!area) return;
+
+            let padding, minHeight;
+            if (score < 150) {
+                padding = '6px';
+                minHeight = '80px';
+            } else if (score < 200) {
+                padding = '10px';
+                minHeight = '160px';
+            } else if (score < 400) {
+                padding = '14px';
+                minHeight = '240px';
+            } else {
+                padding = '18px';
+                minHeight = '320px';
+            }
+            area.style.padding = padding;
+            area.style.minHeight = minHeight;
+        }
+
         function renderScores() {
             scores.forEach((score, index) => {
                 const total = document.getElementById(`t-${index}`);
@@ -464,6 +496,8 @@
                     val -= 50;
                 }
                 if (val > 0) area.innerHTML += drawHouse(val);
+
+                adjustScoreAreaSize(index, score);
             });
         }
 

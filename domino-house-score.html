@@ -58,9 +58,11 @@
         .mark {
             width: 48px;
             height: 48px;
-            border-radius: 14px;
-            background: linear-gradient(135deg, var(--accent), var(--sun));
+            border-radius: 8px;
+            background: #ffffff;
+            border: 2px solid var(--accent);
             box-shadow: 0 10px 25px rgba(255, 107, 74, 0.3);
+            display: flex;
         }
 
         h1 {
@@ -235,10 +237,19 @@
         }
 
         .field input {
-            padding: 10px 12px;
+            padding: 14px 12px;
             border-radius: 12px;
             border: 1px solid var(--line);
             font-size: 15px;
+            min-height: 44px;
+        }
+
+        .name-grid input {
+            padding: 14px 12px;
+            border-radius: 12px;
+            border: 1px solid var(--line);
+            font-size: 15px;
+            min-height: 44px;
         }
 
         .name-grid {
@@ -265,7 +276,23 @@
     <div class="app">
         <div class="hero">
             <div class="brand">
-                <div class="mark"></div>
+                <svg class="mark" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Domino body -->
+                    <rect width="48" height="48" rx="4" fill="#ffffff" stroke="#1c1f2e" stroke-width="1.5"/>
+                    <!-- Center vertical divider -->
+                    <line x1="24" y1="0" x2="24" y2="48" stroke="#1c1f2e" stroke-width="1.5"/>
+                    <!-- Left side: 6 dots (2x3 grid) -->
+                    <circle cx="8" cy="10" r="2" fill="#1c1f2e"/>
+                    <circle cx="16" cy="10" r="2" fill="#1c1f2e"/>
+                    <circle cx="8" cy="24" r="2" fill="#1c1f2e"/>
+                    <circle cx="16" cy="24" r="2" fill="#1c1f2e"/>
+                    <circle cx="8" cy="38" r="2" fill="#1c1f2e"/>
+                    <circle cx="16" cy="38" r="2" fill="#1c1f2e"/>
+                    <!-- Right side: 3 dots (diagonal) -->
+                    <circle cx="40" cy="10" r="2" fill="#1c1f2e"/>
+                    <circle cx="36" cy="24" r="2" fill="#1c1f2e"/>
+                    <circle cx="32" cy="38" r="2" fill="#1c1f2e"/>
+                </svg>
                 <div>
                     <h1>House of Bones</h1>
                     <div class="tagline">Bones on deck. Scores on lock</div>

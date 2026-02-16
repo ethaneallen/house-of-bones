@@ -153,16 +153,20 @@
         }
 
         .score-area {
-            min-height: 360px;
+            min-height: 100px;
             width: 100%;
             cursor: pointer;
             border-radius: 16px;
             border: 1px dashed #c8d2f2;
             background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
-            padding: 8px 0;
+            padding: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            gap: 8px;
         }
 
-        .house { width: 80px; height: 80px; position: relative; margin: 12px auto; }
+        .house { width: 80px; height: 80px; position: relative; margin: 0; flex-shrink: 0; }
         .line-v { position: absolute; width: 4px; height: 100%; background: var(--ink); left: 38px; top: 0; }
         .line-h { position: absolute; height: 4px; width: 100%; background: var(--ink); top: 38px; left: 0; }
         .quad { position: absolute; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; }

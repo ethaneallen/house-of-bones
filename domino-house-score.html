@@ -163,7 +163,8 @@
             flex-wrap: wrap;
             align-content: flex-start;
             gap: 6px;
-            transition: padding 0.3s ease, min-height 0.3s ease;
+            padding: 6px;
+            transition: min-height 0.3s ease;
             margin: 0 auto;
         }
 
@@ -328,7 +329,7 @@
 
             <label class="field">
                 How many players?
-                <input id="player-count" type="number" min="2" max="6" value="4" required>
+                <input id="player-count" type="number" min="2" max="6" value="2" required>
             </label>
 
             <label class="field">
@@ -464,22 +465,14 @@
             const area = document.getElementById(`area-${index}`);
             if (!area) return;
 
-            let padding, minHeight;
-            if (score < 150) {
-                padding = '6px';
-                minHeight = '80px';
-            } else if (score < 200) {
-                padding = '10px';
-                minHeight = '160px';
-            } else if (score < 400) {
-                padding = '14px';
-                minHeight = '240px';
-            } else {
-                padding = '18px';
-                minHeight = '320px';
-            }
-            area.style.padding = padding;
-            area.style.minHeight = minHeight;
+            // Calculate number of houses needed (each house is max 50 points)
+            const numHouses = Math.ceil(score / 50);
+            // 3 houses per row
+            const numRows = Math.ceil(numHouses / 3);
+            
+            // Each row is 80px, with 6px gap between rows
+            const minHeight = (numRows * 80) + ((numRows - 1) * 6) + 12; // +12 for padding
+            area.style.minHeight = `${minHeight}px`;
         }
 
         function renderScores() {

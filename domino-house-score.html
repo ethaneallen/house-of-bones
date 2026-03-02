@@ -93,6 +93,8 @@
             font-weight: 600;
             color: var(--ink-soft);
             box-shadow: 0 6px 16px var(--shadow);
+            font-size: 14px;
+            transition: background 0.2s ease;
         }
 
         button {
@@ -104,7 +106,8 @@
             border-radius: 12px;
             cursor: pointer;
             box-shadow: 0 10px 20px rgba(255, 107, 74, 0.3);
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+            -webkit-tap-highlight-color: transparent;
         }
 
         button.secondary {
@@ -114,6 +117,11 @@
             box-shadow: 0 6px 16px var(--shadow);
         }
 
+        button:active { 
+            transform: translateY(1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
         button:hover { transform: translateY(-1px); }
 
         .board {
@@ -121,6 +129,11 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 18px;
+        }
+
+        @keyframes winnerPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
         }
 
         .player-col {
@@ -133,23 +146,28 @@
             flex-direction: column;
             align-items: center;
             gap: 8px;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border 0.2s ease;
         }
 
         .player-col.winner {
             border: 2px solid var(--accent-2);
-            box-shadow: 0 12px 26px rgba(39, 179, 164, 0.35);
+            box-shadow: 0 12px 26px rgba(39, 179, 164, 0.35), 0 0 20px rgba(39, 179, 164, 0.2);
             transform: translateY(-4px);
+            animation: winnerPulse 2s ease-in-out infinite;
+            background: linear-gradient(135deg, #ffffff 0%, #f0fffe 100%);
         }
 
         .name-box {
             width: 100%;
             text-align: center;
-            background: #f4f6ff;
+            background: linear-gradient(135deg, #f4f6ff 0%, #eef2ff 100%);
             border-radius: 12px;
-            padding: 8px 10px;
+            padding: 10px 10px;
             font-weight: 700;
             font-size: 16px;
+            color: var(--ink);
+            border: 1px solid #dce4f5;
+            box-shadow: 0 2px 6px rgba(60, 80, 160, 0.1);
         }
 
         .score-area {
@@ -164,8 +182,14 @@
             align-content: flex-start;
             gap: 6px;
             padding: 6px;
-            transition: min-height 0.3s ease;
+            transition: min-height 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
             margin: 0 auto;
+            box-shadow: inset 0 2px 8px rgba(200, 210, 242, 0.3);
+        }
+
+        .score-area:active {
+            transform: scale(0.98);
+            box-shadow: inset 0 2px 8px rgba(200, 210, 242, 0.5), 0 2px 6px rgba(0, 0, 0, 0.08);
         }
 
         @media (min-width: 768px) {
@@ -174,7 +198,28 @@
             }
         }
 
-        .house { width: 80px; height: 80px; position: relative; margin: 0; flex-shrink: 0; }
+        @keyframes housePopIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .house { 
+            width: 80px; 
+            height: 80px; 
+            position: relative; 
+            margin: 0; 
+            flex-shrink: 0;
+            animation: housePopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border-radius: 8px;
+            background: linear-gradient(135deg, #fafbff 0%, #f0f4ff 100%);
+            border: 1px solid #e8ebf5;
+        }
         .line-v { position: absolute; width: 4px; height: 100%; background: var(--ink); left: 38px; top: 0; }
         .line-h { position: absolute; height: 4px; width: 100%; background: var(--ink); top: 38px; left: 0; }
         .quad { position: absolute; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; }
@@ -188,28 +233,46 @@
         .total-box {
             width: 100%;
             text-align: center;
-            background: #fff6e8;
+            background: linear-gradient(135deg, #fff6e8 0%, #ffead0 100%);
             border-radius: 12px;
             padding: 8px 10px;
             font-weight: 700;
             font-size: 20px;
+            border: 1px solid #ffd699;
+            box-shadow: 0 4px 12px rgba(255, 177, 74, 0.2);
         }
 
         .undo-btn { width: 100%; }
 
-        .winner-banner {
-            margin-top: 18px;
-            padding: 12px 18px;
-            border-radius: 14px;
-            background: #e7fff7;
-            border: 1px solid #bceee0;
-            color: #1a6a5f;
-            font-weight: 700;
-            text-align: center;
-            display: none;
+        @keyframes slideInDown {
+            0% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .winner-banner.show { display: block; }
+        .winner-banner {
+            margin-top: 18px;
+            padding: 14px 18px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #e7fff7 0%, #d4f8f0 100%);
+            border: 2px solid var(--accent-2);
+            color: #1a6a5f;
+            font-weight: 700;
+            font-size: 16px;
+            text-align: center;
+            display: none;
+            box-shadow: 0 8px 24px rgba(39, 179, 164, 0.25);
+        }
+
+        .winner-banner.show { 
+            display: block;
+            animation: slideInDown 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
 
         .modal {
             position: fixed;
@@ -228,6 +291,7 @@
             padding: 24px;
             width: min(520px, 100%);
             box-shadow: 0 30px 60px rgba(18, 24, 40, 0.25);
+            animation: slideInDown 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         .modal-card h2 {

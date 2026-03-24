@@ -1,0 +1,25 @@
+{
+  "name": "House of Bones",
+  "short_name": "House of Bones",
+  "description": "Domino score keeper - Bones on deck, Scores on lock",
+  "start_url": "./domino-house-score-v3.html",
+  "display": "standalone",
+  "background_color": "#fffef9",
+  "theme_color": "#27b3a4",
+  "orientation": "portrait-primary",
+  "categories": ["games", "utilities"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect fill='%23fffef9' width='192' height='192'/%3E%3Crect fill='url(%23grad)' x='36' y='36' width='120' height='120' rx='24'/%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%2327b3a4;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%232d3436;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect fill='%23fffef9' width='512' height='512'/%3E%3Crect fill='url(%23grad)' x='96' y='96' width='320' height='320' rx='64'/%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%2327b3a4;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%232d3436;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

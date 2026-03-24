@@ -842,6 +842,15 @@
                 min-height: 150px;
             }
         }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -877,17 +886,17 @@
                     <span>Round <span id="round-number">1</span></span>
                 </div>
                 <div class="pill" id="target-pill">Target: --</div>
-                <button class="secondary icon-btn toggle-btn" id="theme-btn" onclick="toggleTheme()" title="Toggle theme">
+                <button class="secondary icon-btn toggle-btn" id="theme-btn" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle theme" aria-pressed="false">
                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
                     </svg>
                 </button>
-                <button class="secondary icon-btn toggle-btn" id="sound-btn" onclick="toggleSound()" title="Toggle sound">
+                <button class="secondary icon-btn toggle-btn" id="sound-btn" onclick="toggleSound()" title="Toggle sound" aria-label="Toggle sound" aria-pressed="true">
                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M11 5L6 9H2v6h4l5 4V5zM15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14"/>
                     </svg>
                 </button>
-                <button class="secondary icon-btn toggle-btn" id="haptic-btn" onclick="toggleHaptic()" title="Toggle haptic">
+                <button class="secondary icon-btn toggle-btn" id="haptic-btn" onclick="toggleHaptic()" title="Toggle haptic" aria-label="Toggle haptic feedback" aria-pressed="true">
                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M7 2h10v20H7z"/>
                         <path d="M9 6h6M9 10h6M9 14h6"/>
@@ -895,10 +904,12 @@
                 </button>
                 <button class="secondary" onclick="toggleHistory()">History</button>
                 <button class="secondary" onclick="toggleStats()">Stats</button>
+                <button class="secondary" onclick="shareScore()">Share</button>
+                <button class="secondary toggle-btn" id="wake-btn" onclick="toggleWakeLock()" title="Keep screen on" aria-label="Keep screen on" aria-pressed="false">Screen On: Off</button>
             </div>
         </div>
 
-        <div class="winner-banner" id="winner-banner"></div>
+        <div class="winner-banner" id="winner-banner" role="status" aria-live="polite"></div>
         
         <div class="stats-panel" id="stats-panel" style="display: none;">
             <h3 style="margin: 0 0 8px;">Game Statistics</h3>
@@ -932,7 +943,10 @@
             </label>
 
             <div class="field">Player names</div>
-            <div class="name-grid" id="name-grid"></div>
+            <div class="name-grid" id="name-grid">
+                <input type="text" placeholder="Player 1" maxlength="20">
+                <input type="text" placeholder="Player 2" maxlength="20">
+            </div>
 
             <div class="modal-actions">
                 <button type="button" class="secondary" id="cancel-btn">Cancel</button>
@@ -940,7 +954,6 @@
             </div>
         </form>
     </div>
-
 
     <script>
         let players = [];
@@ -963,8 +976,11 @@
         let settings = {
             theme: 'light',
             soundEnabled: true,
-            hapticEnabled: true
+            hapticEnabled: true,
+            keepScreenOn: false
         };
+        let audioContext = null;
+        let wakeLockSentinel = null;
         let touchStartX = 0;
         let touchStartY = 0;
 
@@ -987,6 +1003,7 @@
         const themeBtn = document.getElementById('theme-btn');
         const soundBtn = document.getElementById('sound-btn');
         const hapticBtn = document.getElementById('haptic-btn');
+        const wakeBtn = document.getElementById('wake-btn');
 
         // Load saved data
         function loadData() {
@@ -1017,7 +1034,10 @@
             const savedSettings = localStorage.getItem('dominoSettings');
             if (savedSettings) {
                 try {
-                    settings = JSON.parse(savedSettings);
+                    settings = {
+                        ...settings,
+                        ...JSON.parse(savedSettings)
+                    };
                     applySettings();
                 } catch (e) {
                     console.error('Failed to load settings', e);
@@ -1050,6 +1070,16 @@
             themeBtn.classList.toggle('active', settings.theme === 'dark');
             soundBtn.classList.toggle('active', settings.soundEnabled);
             hapticBtn.classList.toggle('active', settings.hapticEnabled);
+            if (wakeBtn) {
+                wakeBtn.classList.toggle('active', !!settings.keepScreenOn && !!wakeLockSentinel);
+                wakeBtn.textContent = settings.keepScreenOn ? 'Screen On: On' : 'Screen On: Off';
+            }
+            themeBtn.setAttribute('aria-pressed', settings.theme === 'dark' ? 'true' : 'false');
+            soundBtn.setAttribute('aria-pressed', settings.soundEnabled ? 'true' : 'false');
+            hapticBtn.setAttribute('aria-pressed', settings.hapticEnabled ? 'true' : 'false');
+            if (wakeBtn) {
+                wakeBtn.setAttribute('aria-pressed', settings.keepScreenOn ? 'true' : 'false');
+            }
         }
 
         function toggleTheme() {
@@ -1073,9 +1103,91 @@
             vibrate(10);
         }
 
+        async function requestWakeLock() {
+            if (!('wakeLock' in navigator)) {
+                return false;
+            }
+
+            try {
+                wakeLockSentinel = await navigator.wakeLock.request('screen');
+                wakeLockSentinel.addEventListener('release', () => {
+                    wakeLockSentinel = null;
+                    applySettings();
+                });
+                applySettings();
+                return true;
+            } catch (e) {
+                console.warn('Wake lock request failed', e);
+                return false;
+            }
+        }
+
+        async function releaseWakeLock() {
+            if (!wakeLockSentinel) return;
+            try {
+                await wakeLockSentinel.release();
+            } catch (e) {
+                console.warn('Wake lock release failed', e);
+            }
+            wakeLockSentinel = null;
+            applySettings();
+        }
+
+        async function syncWakeLock() {
+            if (!settings.keepScreenOn) {
+                await releaseWakeLock();
+                return;
+            }
+
+            if (document.visibilityState !== 'visible') {
+                return;
+            }
+
+            if (wakeLockSentinel) {
+                return;
+            }
+
+            const acquired = await requestWakeLock();
+            if (!acquired) {
+                settings.keepScreenOn = false;
+                applySettings();
+                saveData();
+            }
+        }
+
+        async function toggleWakeLock() {
+            settings.keepScreenOn = !settings.keepScreenOn;
+            if (settings.keepScreenOn) {
+                const acquired = await requestWakeLock();
+                if (!acquired) {
+                    settings.keepScreenOn = false;
+                    applySettings();
+                    saveData();
+                    alert('Keep screen on is not available on this device or browser.');
+                    return;
+                }
+            } else {
+                await releaseWakeLock();
+            }
+
+            applySettings();
+            saveData();
+            playSound('click');
+        }
+
         function playSound(type) {
             if (!settings.soundEnabled) return;
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+            if (!audioContext) {
+                const Ctx = window.AudioContext || window.webkitAudioContext;
+                if (!Ctx) return;
+                audioContext = new Ctx();
+            }
+
+            if (audioContext.state === 'suspended') {
+                audioContext.resume().catch(() => {});
+            }
+
             const oscillator = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
             
@@ -1261,6 +1373,7 @@
         }
 
         function shareScore() {
+            if (!players.length) return;
             const scoreText = players.map((name, i) => `${name}: ${scores[i]}`).join('\n');
             const text = `House of Bones - Round ${currentRound}\n${scoreText}\nTarget: ${targetPoints}`;
             
@@ -1269,10 +1382,16 @@
                     title: 'House of Bones Score',
                     text: text
                 }).catch(() => {});
+            } else if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text)
+                    .then(() => {
+                        alert('Score copied to clipboard!');
+                    })
+                    .catch(() => {
+                        alert(text);
+                    });
             } else {
-                navigator.clipboard.writeText(text).then(() => {
-                    alert('Score copied to clipboard!');
-                });
+                alert(text);
             }
             playSound('click');
         }
@@ -1291,6 +1410,7 @@
             playerCountInput.value = players.length || 2;
             buildNameInputs();
             setupModal.style.display = 'flex';
+            ensureNameInputs();
             // Focus first input after modal is visible
             setTimeout(() => {
                 const firstInput = nameGrid.querySelector('input');
@@ -1313,11 +1433,17 @@
             submitBtn.textContent = 'Edit Game';
             buildNameInputs();
             setupModal.style.display = 'flex';
+            ensureNameInputs();
             // Focus first input after modal is visible
             setTimeout(() => {
                 const firstInput = nameGrid.querySelector('input');
                 if (firstInput) firstInput.focus();
             }, 100);
+        }
+
+        function ensureNameInputs() {
+            if (nameGrid.querySelectorAll('input').length > 0) return;
+            buildNameInputs();
         }
 
         function buildNameInputs() {
@@ -1423,7 +1549,11 @@
 
             const numHouses = Math.ceil(score / 50);
             const numRows = Math.ceil(numHouses / 3);
-            const minHeight = Math.max(100, (numRows * 80) + ((numRows - 1) * 6) + 12);
+            const baseHeight = (numRows * 80) + ((numRows - 1) * 6) + 12;
+            const compactMobile = window.matchMedia('(max-width: 720px)').matches;
+            const manyPlayers = players.length >= 4;
+            const floor = compactMobile ? (manyPlayers ? 160 : 190) : 100;
+            const minHeight = Math.max(floor, baseHeight);
             area.style.minHeight = `${minHeight}px`;
         }
 
@@ -1502,23 +1632,25 @@
             }
         }
 
-        function checkWinner() {
+        function checkWinner(updateStats = true) {
             const winnerIndex = scores.findIndex(score => score >= targetPoints);
-            if (winnerIndex === -1) return;
+            if (winnerIndex === -1) return false;
 
             gameOver = true;
             const winnerName = players[winnerIndex];
             
-            // Update all-time stats
-            gameStats.gamesPlayed++;
-            gameStats.totalRounds += currentRound;
-            gameStats.playerWins[winnerName] = (gameStats.playerWins[winnerName] || 0) + 1;
-            const totalScore = scores.reduce((a, b) => a + b, 0);
-            gameStats.averageScore = Math.round((gameStats.averageScore * (gameStats.gamesPlayed - 1) + totalScore / players.length) / gameStats.gamesPlayed);
-            
-            // Update session stats
-            sessionStats.gamesPlayed++;
-            sessionStats.playerWins[winnerName] = (sessionStats.playerWins[winnerName] || 0) + 1;
+            if (updateStats) {
+                // Update all-time stats
+                gameStats.gamesPlayed++;
+                gameStats.totalRounds += currentRound;
+                gameStats.playerWins[winnerName] = (gameStats.playerWins[winnerName] || 0) + 1;
+                const totalScore = scores.reduce((a, b) => a + b, 0);
+                gameStats.averageScore = Math.round((gameStats.averageScore * (gameStats.gamesPlayed - 1) + totalScore / players.length) / gameStats.gamesPlayed);
+
+                // Update session stats
+                sessionStats.gamesPlayed++;
+                sessionStats.playerWins[winnerName] = (sessionStats.playerWins[winnerName] || 0) + 1;
+            }
             
             winnerBanner.textContent = `${winnerName} wins with ${scores[winnerIndex]} points!`;
             winnerBanner.classList.add('show');
@@ -1527,9 +1659,12 @@
                 if (idx === winnerIndex) col.classList.add('winner');
             });
 
-            saveData();
+            if (updateStats) {
+                saveData();
+            }
             vibrate([100, 50, 100]);
             playSound('win');
+            return true;
         }
 
         function clearAllStats() {
@@ -1592,9 +1727,16 @@
         playerCountInput.addEventListener('input', buildNameInputs);
         document.getElementById('setup-form').addEventListener('submit', setupGame);
         cancelBtn.addEventListener('click', cancelEdit);
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                syncWakeLock();
+            }
+        });
 
         // Initialize
         loadData();
+        applySettings();
+        syncWakeLock();
         if (players.length > 0) {
             targetPill.textContent = `Target: ${targetPoints}`;
             roundNumber.textContent = currentRound;
@@ -1602,7 +1744,7 @@
             renderScores();
             renderHistory();
             if (gameOver) {
-                checkWinner();
+                checkWinner(false);
             }
         } else {
             openSetup();

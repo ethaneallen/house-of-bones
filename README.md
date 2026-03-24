@@ -62,7 +62,7 @@ Each domino house represents up to 50 points, making it easy to see scores at a 
 ## Installation
 
 ### Option 1: Direct Use
-Simply open `domino-house-score.html` in any modern web browser.
+Simply open `domino-house-score-v3.html` in any modern web browser.
 
 ### Option 2: Host on Web Server
 Copy the HTML file to your web server and serve it:
@@ -84,7 +84,7 @@ npx serve
 
 ```
 .
-├── domino-house-score.html    # Main application (all-in-one file)
+├── domino-house-score-v3.html # Main application (all-in-one file)
 ├── manifest.json              # PWA manifest (optional)
 └── README.md                  # This file
 ```

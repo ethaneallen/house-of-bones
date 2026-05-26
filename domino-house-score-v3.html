@@ -932,10 +932,15 @@
             <h2 id="setup-title">Start a new match</h2>
             <p id="setup-subtitle">Set up players and the points to win.</p>
 
-            <label class="field">
+            <div class="field">
                 How many players?
-                <input id="player-count" type="number" min="2" max="6" value="2" required>
-            </label>
+                <div class="preset-group" style="margin-top: 8px;">
+                    <button type="button" class="preset-btn player-count-btn" onclick="setPlayerCount(2)">2</button>
+                    <button type="button" class="preset-btn player-count-btn" onclick="setPlayerCount(3)">3</button>
+                    <button type="button" class="preset-btn player-count-btn" onclick="setPlayerCount(4)">4</button>
+                </div>
+                <input id="player-count" type="hidden" value="2">
+            </div>
 
             <label class="field">
                 Play to how many points?
@@ -953,6 +958,27 @@
                 <button type="submit" id="submit-btn">Start Game</button>
             </div>
         </form>
+    </div>
+
+    <div class="modal" id="confirm-modal" style="display:none;">
+        <div class="modal-card" style="text-align:center;">
+            <h2 id="confirm-title">Confirm</h2>
+            <p id="confirm-message"></p>
+            <div class="modal-actions" style="justify-content:center;">
+                <button type="button" class="secondary" id="confirm-no">No</button>
+                <button type="button" id="confirm-yes">Yes</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="alert-modal" style="display:none;">
+        <div class="modal-card" style="text-align:center;">
+            <h2 id="alert-title">Notice</h2>
+            <p id="alert-message"></p>
+            <div class="modal-actions" style="justify-content:center;">
+                <button type="button" id="alert-ok">OK</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -983,6 +1009,42 @@
         let wakeLockSentinel = null;
         let touchStartX = 0;
         let touchStartY = 0;
+
+        function showConfirm(title, message) {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('confirm-modal');
+                document.getElementById('confirm-title').textContent = title;
+                document.getElementById('confirm-message').textContent = message;
+                modal.style.display = 'flex';
+                const yesBtn = document.getElementById('confirm-yes');
+                const noBtn = document.getElementById('confirm-no');
+                function cleanup() {
+                    modal.style.display = 'none';
+                    yesBtn.removeEventListener('click', onYes);
+                    noBtn.removeEventListener('click', onNo);
+                }
+                function onYes() { cleanup(); resolve(true); }
+                function onNo() { cleanup(); resolve(false); }
+                yesBtn.addEventListener('click', onYes);
+                noBtn.addEventListener('click', onNo);
+            });
+        }
+
+        function showAlert(title, message) {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('alert-modal');
+                document.getElementById('alert-title').textContent = title;
+                document.getElementById('alert-message').textContent = message;
+                modal.style.display = 'flex';
+                const okBtn = document.getElementById('alert-ok');
+                function onOk() {
+                    modal.style.display = 'none';
+                    okBtn.removeEventListener('click', onOk);
+                    resolve();
+                }
+                okBtn.addEventListener('click', onOk);
+            });
+        }
 
         const board = document.getElementById('board');
         const targetPill = document.getElementById('target-pill');
@@ -1163,7 +1225,7 @@
                     settings.keepScreenOn = false;
                     applySettings();
                     saveData();
-                    alert('Keep screen on is not available on this device or browser.');
+                    showAlert('Not Available', 'Keep screen on is not available on this device or browser.');
                     return;
                 }
             } else {
@@ -1385,13 +1447,13 @@
             } else if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(text)
                     .then(() => {
-                        alert('Score copied to clipboard!');
+                        showAlert('Shared', 'Score copied to clipboard!');
                     })
                     .catch(() => {
-                        alert(text);
+                        showAlert('Score', text);
                     });
             } else {
-                alert(text);
+                showAlert('Score', text);
             }
             playSound('click');
         }
@@ -1401,7 +1463,6 @@
             winnerBanner.classList.remove('show');
             winnerBanner.textContent = '';
             gameOver = false;
-            playerCountInput.disabled = false;
             setupTitle.textContent = 'Start a new match';
             setupSubtitle.textContent = 'Set up players and the points to win.';
             targetInput.value = targetPoints || 150;
@@ -1411,6 +1472,7 @@
             buildNameInputs();
             setupModal.style.display = 'flex';
             ensureNameInputs();
+            setPlayerCount(parseInt(playerCountInput.value) || 2);
             // Focus first input after modal is visible
             setTimeout(() => {
                 const firstInput = nameGrid.querySelector('input');
@@ -1425,7 +1487,6 @@
             }
             isEditing = true;
             playerCountInput.value = players.length;
-            playerCountInput.disabled = true;
             targetInput.value = targetPoints || 150;
             setupTitle.textContent = 'Edit this match';
             setupSubtitle.textContent = 'Update player names or the target score.';
@@ -1434,6 +1495,13 @@
             buildNameInputs();
             setupModal.style.display = 'flex';
             ensureNameInputs();
+            setPlayerCount(parseInt(playerCountInput.value) || 2);
+            // Disable player count buttons during edit
+            document.querySelectorAll('.player-count-btn').forEach(btn => {
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+                btn.style.pointerEvents = 'none';
+            });
             // Focus first input after modal is visible
             setTimeout(() => {
                 const firstInput = nameGrid.querySelector('input');
@@ -1463,8 +1531,22 @@
 
         function clampPlayers(val) {
             if (val < 2) return 2;
-            if (val > 6) return 6;
+            if (val > 4) return 4;
             return val;
+        }
+
+        function setPlayerCount(count) {
+            playerCountInput.value = count;
+            document.querySelectorAll('.player-count-btn').forEach(btn => {
+                btn.style.background = '';
+                btn.style.color = '';
+                btn.style.borderColor = '';
+            });
+            const btns = document.querySelectorAll('.player-count-btn');
+            btns[count - 2].style.background = 'linear-gradient(135deg, var(--accent-3) 0%, var(--accent-2) 100%)';
+            btns[count - 2].style.color = 'white';
+            btns[count - 2].style.borderColor = 'transparent';
+            buildNameInputs();
         }
 
         function setupGame(event) {
@@ -1598,9 +1680,9 @@
 
         function addScore(index) {
             if (gameOver) {
-                if (confirm('Game is over. Start a new round with same players?')) {
-                    quickRematch();
-                }
+                showConfirm('Game Over', 'Start a new round with same players?').then(yes => {
+                    if (yes) quickRematch();
+                });
                 return;
             }
             scores[index] += 5;
@@ -1668,21 +1750,23 @@
         }
 
         function clearAllStats() {
-            if (confirm('Clear all statistics? This cannot be undone.')) {
-                gameStats = {
-                    gamesPlayed: 0,
-                    playerWins: {},
-                    totalRounds: 0,
-                    averageScore: 0
-                };
-                sessionStats = {
-                    gamesPlayed: 0,
-                    playerWins: {}
-                };
-                saveData();
-                renderStats();
-                playSound('click');
-            }
+            showConfirm('Clear Stats', 'Clear all statistics? This cannot be undone.').then(yes => {
+                if (yes) {
+                    gameStats = {
+                        gamesPlayed: 0,
+                        playerWins: {},
+                        totalRounds: 0,
+                        averageScore: 0
+                    };
+                    sessionStats = {
+                        gamesPlayed: 0,
+                        playerWins: {}
+                    };
+                    saveData();
+                    renderStats();
+                    playSound('click');
+                }
+            });
         }
 
         function quickRematch() {
@@ -1705,9 +1789,13 @@
 
         function resetGame() {
             const hasGame = players.length > 0;
-            const message = hasGame ? 'Start a new game? Current progress will be lost.' : 'Start a new game?';
-            if (hasGame && !confirm(message)) return;
-            openSetup();
+            if (hasGame) {
+                showConfirm('New Game', 'Start a new game? Current progress will be lost.').then(yes => {
+                    if (yes) openSetup();
+                });
+            } else {
+                openSetup();
+            }
         }
 
         function cancelEdit() {
@@ -1724,7 +1812,6 @@
                 .replace(/'/g, '&#39;');
         }
 
-        playerCountInput.addEventListener('input', buildNameInputs);
         document.getElementById('setup-form').addEventListener('submit', setupGame);
         cancelBtn.addEventListener('click', cancelEdit);
         document.addEventListener('visibilitychange', () => {

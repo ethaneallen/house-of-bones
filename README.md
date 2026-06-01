@@ -74,7 +74,6 @@ Designed to be thumb-friendly, table-friendly, and distraction-free.
 
 - Main files in repo root:
     - `domino-house-score-v4.html` (latest UI/features)
-    - `domino-house-score-v3.html` (older variant)
     - `manifest.json`
     - `sw.js`
 
@@ -183,12 +182,3 @@ Tip: After deploying updates, hard refresh once to ensure clients pick up the ne
 ## License 📄
 
 This project is licensed under the MIT License. See `LICENSE`.
-
-## Contributing 🤝
-
-Contributions are welcome and appreciated. Keep changes fun, focused, and easy to review.
-
-1. Fork the repository.
-2. Create a feature branch.
-3. Make focused, small changes with clear commit messages.
-4. Open a pull request with a short summary of what changed and why.

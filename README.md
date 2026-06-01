@@ -1,148 +1,182 @@
-# House of Bones 🎲
+# House of Bones
 
-A modern, interactive web app for scoring **Dominoes** games with beautiful UI and intuitive gameplay.
+House of Bones is a fast, touch-friendly domino scorekeeper built for real table play.
 
-## Demo
+It includes a modern web app and an Android WebView wrapper, with offline support, match history, statistics, and game-quality UX details like haptics, sound, quick actions, and winner celebration effects.
 
-Visit [House of Bones](https://example.com) to play!
+## What This App Does
 
-## Features
+- Tracks scores for 2 to 4 players.
+- Uses the classic House of Bones visual scoring style (50-point "house" units).
+- Supports fast scoring during live play with tap, presets, long-press custom points, and undo.
+- Detects winners automatically at the configured target score.
+- Stores game state, history, settings, and stats locally so sessions resume after refresh.
 
-✨ **Beautiful Design**
-- Clean, modern interface with smooth animations
-- Responsive layout works on desktop and mobile
-- Customizable color theme
+## Core Features
 
-🎮 **Game Features**
-- Support for 2-6 players
-- Incremental scoring visualization using "dominoes houses"
-- Points tracked in increments of 5
-- Undo functionality for the last 5 points
-- Customizable target score to win
-- Real-time winner detection with celebration banner
+### Gameplay and scoring
 
-📱 **Mobile-Friendly**
-- Progressive Web App (PWA) support
-- Touch-optimized interface
-- Works offline (with manifest.json)
-- Installable as native app on mobile devices
+- New match setup with:
+    - player count (2 to 4)
+    - player names
+    - target score (minimum 50, step of 5)
+- Tap score area to add +5 quickly.
+- Long-press score area to open custom score input (1 to 999).
+- Preset add buttons per player: +5, +10, +15, +20.
+- Quick Undo per player.
+- Full score history with per-entry undo.
+- Round system with quick rematch flow after a winner.
 
-⚙️ **Easy Setup**
-- No installation required
-- Single HTML file with embedded CSS and JavaScript
-- Works in any modern web browser
+### Match flow and feedback
 
-## How to Play
+- Winner banner and highlighted winner card.
+- Confetti celebration animation.
+- Random "Who goes first" picker.
+- Toast notifications for key actions.
 
-1. **Start a Game**: Click "New Game" to set up players
-2. **Configure Match**: 
-   - Enter the number of players (2-6)
-   - Set the target points to win
-   - Enter player names (optional)
-3. **Add Points**: Click on a player's score area to add 5 points
-4. **Undo Points**: Use the "Undo 5 pts" button to remove the last 5 points
-5. **Win**: First player to reach the target score wins!
+### History and stats
 
-## Scoring System
+- Current game history timeline.
+- Past matches history (winner, date/time, final scores).
+- Stats panel with:
+    - session stats
+    - all-time stats
+    - per-player win counts
+    - clear-all stats action
 
-Points are displayed as visual "dominoes houses" that represent domino tile markings:
-- **5 pts** - Center vertical line
-- **10 pts** - Center vertical + horizontal lines
-- **15 pts** - Add top-left mark (slash)
-- **20 pts** - Add top-left mark (circle)
-- **25 pts** - Add top-right mark (slash)
-- **30 pts** - Add top-right mark (circle)
-- **35 pts** - Add bottom-left mark (slash)
-- **40 pts** - Add bottom-left mark (circle)
-- **45 pts** - Add bottom-right mark (slash)
-- **50 pts** - Add bottom-right mark (circle)
+### Device and UX features
 
-Each domino house represents up to 50 points, making it easy to see scores at a glance.
+- Responsive UI for phones and desktop.
+- Orientation-specific mobile layout tuning.
+- Light and dark theme toggle.
+- Sound effects toggle (Web Audio API).
+- Haptic feedback toggle (if supported).
+- Keep-screen-on toggle using Wake Lock API (if supported).
+- Share current scoreboard via native share sheet or clipboard fallback.
+- Reduced-motion support via media query.
 
-## Installation
+### PWA and offline
 
-### Option 1: Direct Use
-Simply open `domino-house-score-v3.html` in any modern web browser.
+- Installable web app manifest.
+- Service worker caching for offline-capable app shell behavior.
 
-### Option 2: Host on Web Server
-Copy the HTML file to your web server and serve it:
+## Platforms in This Repo
+
+### 1) Web app
+
+- Main files in repo root:
+    - `domino-house-score-v4.html` (latest UI/features)
+    - `domino-house-score-v3.html` (older variant)
+    - `manifest.json`
+    - `sw.js`
+
+### 2) Android app wrapper
+
+- Path: `HouseOfBones/`
+- Native shell loads local web assets in WebView (`file:///android_asset/www/index.html`).
+- Build details:
+    - compileSdk 35
+    - targetSdk 35
+    - minSdk 24
+    - Java 17
+
+## Quick Start
+
+### Run locally (web)
+
+1. Open `domino-house-score-v4.html` directly in a browser, or serve the folder with a static server.
+2. Recommended local server options:
 
 ```bash
-# Example with Python
+# Python
 python -m http.server 8000
 
-# Example with Node.js
+# Node
 npx serve
 ```
 
-### Option 3: PWA Installation
-- Open in a modern browser
-- Click the "Install" option (Chrome, Edge, etc.)
-- Add to home screen for direct access
+3. Visit `http://localhost:8000` and open `domino-house-score-v4.html`.
 
-## File Structure
+### Build Android wrapper
 
+From `HouseOfBones/`:
+
+```bash
+./gradlew assembleDebug
 ```
+
+On Windows PowerShell:
+
+```powershell
+.\gradlew.bat assembleDebug
+```
+
+## Data Storage
+
+The app uses local browser storage (no backend required).
+
+Saved keys include:
+
+- `dominoGameState`
+- `dominoGameStats`
+- `dominoMatchHistory`
+- `dominoSettings`
+
+## Notes for Deployment
+
+- The latest gameplay experience is in `domino-house-score-v4.html`.
+- Root PWA config is now aligned to v4 (`manifest.json` + `sw.js`).
+- Android bundled assets in `HouseOfBones/app/src/main/assets/www/` are aligned to `index.html`.
+
+## Browser Support
+
+- Modern Chromium browsers (Chrome, Edge, Android Chrome) are the best target.
+- Safari/iOS should work for core gameplay; some advanced APIs (Wake Lock/share behavior/haptics) vary by browser.
+
+## Tech Stack
+
+- HTML5
+- CSS3
+- Vanilla JavaScript
+- Web APIs: LocalStorage, Service Worker, Web Audio, Vibration, Web Share, Wake Lock
+- Android WebView wrapper (Java + Gradle)
+
+## Project Structure
+
+```text
 .
-├── domino-house-score-v3.html # Main application (all-in-one file)
-├── manifest.json              # PWA manifest (optional)
-└── README.md                  # This file
+├── domino-house-score-v4.html
+├── domino-house-score-v3.html
+├── manifest.json
+├── sw.js
+├── README.md
+└── HouseOfBones/
+        ├── app/
+        │   ├── src/main/java/com/houseofbones/app/MainActivity.java
+        │   └── src/main/assets/www/
+        │       ├── index.html
+        │       ├── manifest.json
+        │       └── sw.js
+        └── gradlew.bat
 ```
 
-## Browser Compatibility
+## Roadmap Ideas
 
-Works on all modern browsers:
-- ✅ Chrome/Edge 90+
-- ✅ Firefox 88+
-- ✅ Safari 14+
-- ✅ Mobile browsers (iOS Safari, Chrome Mobile)
-
-## Technologies Used
-
-- **HTML5** - Semantic markup and SVG graphics
-- **CSS3** - Modern styling with gradients, flexbox, and grid
-- **Vanilla JavaScript** - No framework dependencies
-- **Web Fonts** - Google Fonts (Cabin Sketch, Work Sans)
-
-## Customization
-
-You can customize the app by editing the CSS variables at the top of the `<style>` section:
-
-```css
-:root {
-    --ink: #1c1f2e;           /* Dark text color */
-    --accent: #ff6b4a;        /* Primary accent color */
-    --accent-2: #27b3a4;      /* Secondary accent (winner) */
-    --sun: #ffe177;           /* Highlight color */
-    --paper: #fffdf7;         /* Background color */
-    --card: #ffffff;          /* Card background */
-    --line: #d8dce9;          /* Border color */
-    --shadow: rgba(...);      /* Shadow color */
-}
-```
-
-## Features Roadmap
-
-- [ ] Game history/statistics
-- [ ] Score verification system
-- [ ] Two-player domino variant support
-- [ ] Sound effects
-- [ ] Dark mode theme
-- [ ] Score export (CSV/PDF)
-- [ ] Multi-language support
+- Export/import match data.
+- Team mode and partner scoring presets.
+- Optional cloud sync.
+- Match notes and tags.
+- Lightweight tournament mode.
 
 ## License
 
-MIT License - Feel free to use, modify, and distribute this project.
+This project is licensed under the MIT License. See `LICENSE`.
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome.
 
-## Acknowledgments
-
-Inspired by the classic game of Dominoes and "House of Bones" scoring variant. Designed with love for domino enthusiasts everywhere! 🎲
-
----
-
-Made with ❤️ for domino players
+1. Fork the repository.
+2. Create a feature branch.
+3. Make focused, small changes with clear commit messages.
+4. Open a pull request with a short summary of what changed and why.

@@ -1,7 +1,7 @@
-const CACHE_NAME = 'domino-house-v2';
+const CACHE_NAME = 'domino-house-v3';
 const APP_SHELL = [
   './',
-  './domino-house-score-v3.html',
+  './domino-house-score-v4.html',
   './manifest.json'
 ];
 
@@ -55,7 +55,7 @@ self.addEventListener('fetch', event => {
         return networkResponse;
       } catch (_) {
         const cachedResponse = await caches.match(event.request);
-        return cachedResponse || caches.match('./domino-house-score-v3.html');
+        return cachedResponse || caches.match('./domino-house-score-v4.html');
       }
     })());
     return;

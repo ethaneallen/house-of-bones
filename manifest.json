@@ -2,7 +2,7 @@
   "name": "House of Bones",
   "short_name": "House of Bones",
   "description": "Domino score keeper - Bones on deck, Scores on lock",
-  "start_url": "./domino-house-score-v3.html",
+  "start_url": "./domino-house-score-v4.html",
   "display": "standalone",
   "background_color": "#fffef9",
   "theme_color": "#27b3a4",

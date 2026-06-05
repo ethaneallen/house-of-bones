@@ -16,6 +16,10 @@ Built for fast rounds, loud tables, and zero scorekeeping drama.
 - Detects winners automatically at the configured target score.
 - Stores game state, history, settings, and stats locally so sessions resume after refresh.
 
+
+<img width="1102" height="624" alt="image" src="https://github.com/user-attachments/assets/0d8d3fe0-75af-43b4-b716-52b1b8aa48c4" />
+
+
 ## Core Features 🔥
 
 ### Gameplay and scoring 🧮

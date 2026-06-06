@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#140b1d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Tip or Treat">
+<meta name="description" content="Compact tip calculator with split support and quick total rounding.">
+<link rel="manifest" href="./manifest.json">
+<title>Tip or Treat</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;700;800&display=swap');
+
+  :root {
+    --bg: #070405;
+    --bg-glow-1: rgba(168, 23, 37, 0.22);
+    --bg-glow-2: rgba(115, 11, 28, 0.2);
+    --row: #140b0d;
+    --row-border: #5a151d;
+    --ink: #ffe8df;
+    --btn: #2a0d13;
+    --btn-ink: #fff4ef;
+    --highlight: #b0161f;
+    --accent-hot: #ff5f6f;
+    --accent-glow: rgba(176, 22, 31, 0.3);
+    --focus: #ff5b67;
+    --panel: #1a0d10;
+    --panel-border: #6e1a25;
+    --panel-muted: #281014;
+    --edge: #7f1d2a;
+    --edge-strong: #611722;
+    --step-top: #4b141e;
+    --step-bottom: #2a0b12;
+    --surface-top: rgba(24, 10, 14, 0.95);
+    --surface-bottom: rgba(12, 5, 7, 0.95);
+    --elev-1: 0 2px 8px rgba(0, 0, 0, 0.42);
+    --elev-2: 0 12px 30px rgba(0, 0, 0, 0.54);
+    --top-safe-gap: 28px;
+    --coffin-clip: polygon(50% 0%, 86% 12%, 100% 34%, 100% 100%, 0% 100%, 0% 34%, 14% 12%);
+    --fog-opacity: 0.6;
+    --flicker-duration: 5.4s;
+    --distress-opacity: 0.4;
+    --title-shadow-bright: 0 0 18px rgba(186, 26, 42, 0.34), 0 0 3px rgba(255, 204, 204, 0.26);
+    --title-shadow-dim: 0 0 8px rgba(186, 26, 42, 0.16), 0 0 2px rgba(255, 170, 170, 0.15);
+    --grain-opacity: 0.45;
+    --corner-glyph: '☠';
+    --corner-opacity: 0.16;
+    --corner-size: 28px;
+    --corner-color: #ffd0d6;
+    --fog-hue: 0deg;
+    --app-glow: 0 0 34px rgba(106, 11, 24, 0.22);
+  }
+
+  :root[data-horror='soft'] {
+    --bg: #1a0a10;
+    --bg-glow-1: rgba(255, 154, 57, 0.32);
+    --bg-glow-2: rgba(255, 114, 46, 0.26);
+    --row: #2a1512;
+    --row-border: #a35428;
+    --highlight: #ff8b28;
+    --accent-hot: #ffc27d;
+    --accent-glow: rgba(255, 139, 40, 0.46);
+    --focus: #ffbb73;
+    --panel: #311812;
+    --panel-border: #b15f2d;
+    --panel-muted: #452217;
+    --edge: #a35428;
+    --edge-strong: #8f4720;
+    --step-top: #7f3a1f;
+    --step-bottom: #572614;
+    --surface-top: rgba(44, 18, 26, 0.95);
+    --surface-bottom: rgba(24, 10, 15, 0.95);
+    --fog-opacity: 0.42;
+    --flicker-duration: 7.5s;
+    --distress-opacity: 0.2;
+    --title-shadow-bright: 0 0 14px rgba(255, 139, 40, 0.34), 0 0 2px rgba(255, 214, 164, 0.24);
+    --title-shadow-dim: 0 0 6px rgba(255, 139, 40, 0.18), 0 0 1px rgba(255, 196, 126, 0.14);
+    --grain-opacity: 0.28;
+    --corner-glyph: '🎃';
+    --corner-opacity: 0.26;
+    --corner-size: 30px;
+    --corner-color: #ffbe6f;
+    --fog-hue: -20deg;
+    --app-glow: 0 0 34px rgba(255, 139, 40, 0.22);
+  }
+
+  :root[data-horror='extreme'] {
+    --bg: #040203;
+    --bg-glow-1: rgba(88, 7, 17, 0.3);
+    --bg-glow-2: rgba(52, 5, 13, 0.3);
+    --row: #0d0608;
+    --row-border: #3a0b13;
+    --highlight: #5f0811;
+    --accent-hot: #ff5266;
+    --accent-glow: rgba(118, 13, 23, 0.5);
+    --focus: #ff4156;
+    --panel: #120709;
+    --panel-border: #4a0f18;
+    --panel-muted: #1b0a0d;
+    --edge: #4e1019;
+    --edge-strong: #3f0b14;
+    --step-top: #2f0c12;
+    --step-bottom: #170507;
+    --surface-top: rgba(14, 6, 8, 0.96);
+    --surface-bottom: rgba(7, 3, 4, 0.96);
+    --fog-opacity: 0.86;
+    --flicker-duration: 3.4s;
+    --distress-opacity: 0.56;
+    --title-shadow-bright: 0 0 24px rgba(186, 26, 42, 0.48), 0 0 4px rgba(255, 220, 220, 0.32);
+    --title-shadow-dim: 0 0 10px rgba(186, 26, 42, 0.24), 0 0 2px rgba(255, 170, 170, 0.2);
+    --grain-opacity: 0.62;
+    --corner-glyph: '✶';
+    --corner-opacity: 0.28;
+    --corner-size: 26px;
+    --corner-color: #ff7a8a;
+    --fog-hue: 14deg;
+    --app-glow: 0 0 40px rgba(118, 13, 23, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background:
+      radial-gradient(1200px 520px at -10% -20%, var(--bg-glow-1), transparent 58%),
+      radial-gradient(760px 420px at 110% 10%, var(--bg-glow-2), transparent 62%),
+      var(--bg);
+    font-family: 'DM Sans', 'Segoe UI', sans-serif;
+    color: var(--ink);
+    padding: calc(var(--top-safe-gap) + env(safe-area-inset-top, 0px)) 12px calc(12px + env(safe-area-inset-bottom, 0px));
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.01) 0 2px, transparent 2px 8px),
+      repeating-linear-gradient(45deg, rgba(186, 26, 42, 0.04) 0 1px, transparent 1px 10px);
+    opacity: var(--grain-opacity);
+    z-index: -2;
+  }
+
+  body::after {
+    content: var(--corner-glyph);
+    position: fixed;
+    right: 8px;
+    top: 8px;
+    font-size: var(--corner-size);
+    color: var(--corner-color);
+    opacity: var(--corner-opacity);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .fog-layer {
+    position: fixed;
+    inset: -30% -20%;
+    pointer-events: none;
+    z-index: -1;
+    background:
+      radial-gradient(42% 28% at 20% 35%, rgba(196, 27, 43, 0.1), transparent 68%),
+      radial-gradient(38% 24% at 70% 48%, rgba(140, 20, 34, 0.09), transparent 70%),
+      radial-gradient(32% 22% at 48% 68%, rgba(210, 62, 76, 0.08), transparent 72%);
+    filter: blur(20px);
+    filter: hue-rotate(var(--fog-hue)) blur(20px);
+    opacity: var(--fog-opacity);
+    animation: drift-fog 28s linear infinite alternate;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 520px;
+    margin: 0 auto;
+    background: linear-gradient(180deg, var(--surface-top) 0%, var(--surface-bottom) 100%);
+    border: 1px solid var(--edge-strong);
+    border-radius: 10px;
+    box-shadow:
+      0 18px 44px rgba(0, 0, 0, 0.62),
+      inset 0 1px 0 rgba(255, 205, 205, 0.06),
+      0 0 0 1px var(--accent-glow),
+      var(--app-glow);
+    padding: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .app::before {
+    content: '';
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    top: 0;
+    height: 2px;
+    background: linear-gradient(90deg, rgba(176, 22, 31, 0.08), var(--accent-hot), rgba(176, 22, 31, 0.08));
+    border-radius: 999px;
+    pointer-events: none;
+  }
+
+  .app::after {
+    content: '✢';
+    position: absolute;
+    left: 12px;
+    bottom: 8px;
+    font-size: 18px;
+    opacity: 0.24;
+    pointer-events: none;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    padding: 4px 2px;
+  }
+
+  .title {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin: 0;
+    text-shadow: var(--title-shadow-bright);
+    position: relative;
+    animation: title-flicker var(--flicker-duration) infinite;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .title-text {
+    position: relative;
+    display: inline-block;
+  }
+
+  .title-emoji {
+    background: none;
+    color: initial;
+    -webkit-text-fill-color: initial;
+    filter: saturate(1.15);
+    text-shadow: 0 0 8px rgba(186, 26, 42, 0.25);
+  }
+
+  .mini {
+    font-size: 14px;
+    font-weight: 700;
+    opacity: 0.86;
+    color: #ffbfc6;
+  }
+
+  .rows {
+    display: grid;
+    gap: 4px;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: minmax(140px, 1fr) 48px minmax(140px, 190px) 48px;
+    align-items: center;
+    gap: 6px;
+    background: var(--row);
+    border: 1px solid var(--row-border);
+    border-radius: 4px;
+    padding: 4px 6px;
+    min-height: 60px;
+    box-shadow: var(--elev-1);
+  }
+
+  .row.highlight {
+    background: var(--highlight);
+    border-color: var(--accent-hot);
+    color: #fff2f2;
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent-hot) 55%, transparent), 0 0 18px var(--accent-glow);
+  }
+
+  :root[data-horror='extreme'] .row.highlight {
+    animation: heartbeat-total 2.8s ease-in-out infinite;
+  }
+
+  .label {
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    position: relative;
+  }
+
+  .title-text,
+  .label,
+  .calc-title {
+    background-image: repeating-linear-gradient(
+      172deg,
+      rgba(255, 210, 210, 0.98) 0 2px,
+      color-mix(in srgb, var(--accent-hot) 72%, #ff9aa5) 2px 3px,
+      rgba(255, 236, 236, 0.98) 3px 6px
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 10px rgba(186, 26, 42, 0.25);
+  }
+
+  .title-text::after,
+  .label::after,
+  .calc-title::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, rgba(90, 8, 17, 0.24) 0 1px, transparent 1px 4px);
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    opacity: var(--distress-opacity);
+  }
+
+  .step {
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--edge);
+    border-radius: 4px;
+    clip-path: var(--coffin-clip);
+    background: linear-gradient(180deg, var(--step-top) 0%, var(--step-bottom) 100%);
+    color: var(--btn-ink);
+    font-size: 34px;
+    line-height: 1;
+    font-weight: 700;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    box-shadow: inset 0 1px 0 rgba(255, 221, 221, 0.1), 0 3px 8px rgba(0, 0, 0, 0.45);
+    transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
+  }
+
+  .step:hover {
+    filter: brightness(1.04);
+    box-shadow: inset 0 1px 0 rgba(255, 221, 221, 0.14), 0 0 0 1px color-mix(in srgb, var(--accent-hot) 65%, transparent), 0 0 12px var(--accent-glow), 0 3px 8px rgba(0, 0, 0, 0.42);
+  }
+
+  .step:active {
+    transform: translateY(1px) scale(0.98);
+    box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.06), 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  .step:focus-visible,
+  .collapse-toggle:focus-visible,
+  .segment button:focus-visible,
+  .calc-btn:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--focus) 35%, transparent);
+    outline-offset: 1px;
+  }
+
+  .value-wrap {
+    position: relative;
+  }
+
+  .prefix {
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 21px;
+    font-weight: 800;
+    color: #ff9eaa;
+    pointer-events: none;
+  }
+
+  .value {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    font-size: 30px;
+    font-weight: 800;
+    text-align: right;
+    color: var(--ink);
+    padding: 2px 4px;
+    font-family: inherit;
+  }
+
+  .value.money {
+    padding-left: 24px;
+  }
+
+  .value:focus {
+    outline: 3px solid color-mix(in srgb, var(--focus) 35%, transparent);
+    border-radius: 6px;
+  }
+
+  .collapse-toggle {
+    width: 100%;
+    margin-top: 8px;
+    border: 1px solid var(--edge);
+    border-radius: 8px;
+    background: linear-gradient(180deg, #3a1118 0%, #250a11 100%);
+    color: var(--ink);
+    padding: 10px 12px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    font-family: inherit;
+    box-shadow: var(--elev-1);
+    transition: transform 120ms ease, box-shadow 120ms ease;
+  }
+
+  .collapse-toggle:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  }
+
+  .advanced {
+    margin-top: 6px;
+    display: none;
+    gap: 4px;
+  }
+
+  .advanced.visible {
+    display: grid;
+  }
+
+  .advanced-row {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 4px;
+    padding: 8px;
+    display: grid;
+    gap: 8px;
+    box-shadow: var(--elev-1);
+  }
+
+  .adv-inline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .adv-inline.stack {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .adv-label {
+    font-size: 17px;
+    font-weight: 700;
+  }
+
+  .adv-input {
+    width: 130px;
+    font-size: 26px;
+    font-weight: 800;
+    text-align: right;
+    font-family: inherit;
+    border: 1px solid var(--edge);
+    border-radius: 6px;
+    padding: 4px 8px;
+    background: #0c0507;
+    color: var(--ink);
+  }
+
+  .segment {
+    display: flex;
+    flex-wrap: wrap;
+    width: min(100%, 330px);
+    border: 1px solid var(--edge);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: inset 0 1px 0 rgba(255, 205, 205, 0.12);
+  }
+
+  .segment button {
+    border: 0;
+    background: var(--panel-muted);
+    color: var(--ink);
+    flex: 1 1 80px;
+    min-width: 0;
+    padding: 8px 8px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 120ms ease, color 120ms ease, filter 120ms ease;
+  }
+
+  .segment button:hover {
+    filter: brightness(0.98);
+  }
+
+  .segment button.active {
+    background: var(--highlight);
+    color: #fff4f4;
+  }
+
+  .segment.horror-segment button {
+    flex-basis: 25%;
+    font-size: 13px;
+    padding: 8px 6px;
+  }
+
+  .foot {
+    margin-top: 8px;
+    font-size: 18px;
+    font-weight: 700;
+    text-align: right;
+    color: #ffc1c7;
+    text-shadow: 0 0 10px rgba(186, 26, 42, 0.22);
+  }
+
+  .calc-overlay {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at 50% 100%, rgba(0, 0, 0, 0.28), rgba(0, 0, 0, 0.58));
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 1000;
+    padding: 0 10px;
+  }
+
+  .calc-overlay.open {
+    display: flex;
+    animation: fade-in 150ms ease;
+  }
+
+  .calc-sheet {
+    width: 100%;
+    max-width: 520px;
+    background: linear-gradient(180deg, #250c12 0%, #16070a 100%);
+    border: 1px solid var(--edge);
+    border-radius: 16px 16px 0 0;
+    padding: 10px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    box-shadow: var(--elev-2);
+    animation: slide-up 180ms ease;
+  }
+
+  .calc-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .calc-title {
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+  }
+
+  .calc-display {
+    width: 100%;
+    border: 1px solid var(--edge);
+    background: #0a0406;
+    color: var(--ink);
+    border-radius: 10px;
+    text-align: right;
+    font-size: 30px;
+    font-weight: 800;
+    padding: 6px 10px;
+    margin-bottom: 8px;
+    min-height: 54px;
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.08);
+    transition: box-shadow 120ms ease, border-color 120ms ease;
+  }
+
+  .calc-display:focus {
+    outline: none;
+    border-color: var(--focus);
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.08), 0 0 0 3px color-mix(in srgb, var(--focus) 30%, transparent);
+  }
+
+  .calc-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .calc-btn {
+    min-height: 48px;
+    border: 1px solid var(--edge);
+    border-radius: 10px;
+    background: linear-gradient(180deg, #3c1218 0%, #260b10 100%);
+    color: var(--ink);
+    font-size: 22px;
+    font-weight: 800;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65), 0 2px 4px rgba(0, 0, 0, 0.18);
+    transition: transform 110ms ease, box-shadow 110ms ease, filter 110ms ease;
+  }
+
+  .calc-btn[data-calc="+1"],
+  .calc-btn[data-calc="+10"],
+  .calc-btn[data-calc="back"],
+  .calc-btn.primary {
+    clip-path: var(--coffin-clip);
+    border-radius: 6px;
+  }
+
+  .calc-btn.action {
+    background: linear-gradient(180deg, #51202a 0%, #3b131b 100%);
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .calc-btn.primary {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--highlight) 85%, #ff8d96) 0%, color-mix(in srgb, var(--highlight) 85%, #42070c) 100%);
+    color: #fff5f5;
+  }
+
+  .calc-btn:hover {
+    filter: brightness(1.03);
+    box-shadow: inset 0 1px 0 rgba(255, 221, 221, 0.14), 0 0 0 1px color-mix(in srgb, var(--accent-hot) 60%, transparent), 0 0 10px var(--accent-glow), 0 2px 4px rgba(0, 0, 0, 0.18);
+  }
+
+  .calc-btn:active {
+    transform: translateY(1px) scale(0.985);
+    box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.06), 0 1px 2px rgba(0, 0, 0, 0.25);
+  }
+
+  .calc-btn.success {
+    background: linear-gradient(180deg, #ff6b78 0%, #c11f2d 100%);
+    color: #fff7f7;
+    border-color: var(--edge);
+  }
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes title-flicker {
+    0%, 8%, 10%, 37%, 39%, 70%, 100% {
+      text-shadow: var(--title-shadow-bright);
+      filter: brightness(1);
+    }
+    9%, 38%, 71% {
+      text-shadow: var(--title-shadow-dim);
+      filter: brightness(0.93);
+    }
+  }
+
+  @keyframes drift-fog {
+    0% {
+      transform: translate3d(-4%, -1%, 0) scale(1);
+    }
+    50% {
+      transform: translate3d(3%, 2%, 0) scale(1.06);
+    }
+    100% {
+      transform: translate3d(6%, -2%, 0) scale(1.1);
+    }
+  }
+
+  @keyframes slide-up {
+    from { transform: translateY(14px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  @keyframes heartbeat-total {
+    0%, 70%, 100% {
+      transform: scale(1);
+      box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent-hot) 55%, transparent), 0 0 18px var(--accent-glow);
+    }
+    74% {
+      transform: scale(1.006);
+      box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent-hot) 68%, transparent), 0 0 24px color-mix(in srgb, var(--accent-glow) 80%, #ff5f6f 20%);
+    }
+    80% {
+      transform: scale(1.011);
+      box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent-hot) 75%, transparent), 0 0 28px color-mix(in srgb, var(--accent-glow) 70%, #ff5f6f 30%);
+    }
+  }
+
+  @media (max-width: 420px) {
+    .app { border-radius: 20px 20px 12px 12px; padding: 10px; }
+    .label { font-size: 16px; }
+    .value { font-size: 24px; }
+    .prefix { font-size: 18px; }
+    .step { width: 44px; height: 44px; font-size: 30px; }
+    .row { grid-template-columns: minmax(118px, 1fr) 44px minmax(122px, 150px) 44px; }
+    .adv-inline { gap: 6px; }
+    .adv-input { width: 116px; font-size: 22px; }
+    .segment { width: 100%; }
+    .segment.horror-segment button { flex-basis: 50%; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fog-layer,
+    .title,
+    :root[data-horror='extreme'] .row.highlight {
+      animation: none;
+    }
+  }
+
+  @media (max-height: 760px) {
+    body { padding: 8px; }
+    .app { padding: 10px; }
+    .topbar { margin-bottom: 6px; }
+    .title { font-size: 24px; }
+    .rows { gap: 3px; }
+    .row { min-height: 56px; padding: 3px 5px; }
+    .step { width: 44px; height: 44px; font-size: 30px; }
+    .value { font-size: 24px; }
+    .collapse-toggle { margin-top: 6px; padding: 9px 10px; }
+    .foot { margin-top: 6px; font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+<div class="fog-layer" aria-hidden="true"></div>
+<div class="app">
+  <div class="topbar">
+    <h1 class="title"><span class="title-emoji" aria-hidden="true">🎃</span><span class="title-text">Tip or Treat</span><span class="title-emoji" aria-hidden="true">👻</span></h1>
+    <div class="mini" id="modeBadge">After Tax</div>
+  </div>
+
+  <div class="rows" aria-live="polite">
+    <div class="row">
+      <div class="label">Bill Amount</div>
+      <button class="step" type="button" id="billDown" aria-label="Decrease bill">-</button>
+      <div class="value-wrap">
+        <span class="prefix">$</span>
+        <input class="value money" type="text" id="bill" inputmode="decimal" value="0.00" aria-label="Bill amount">
+      </div>
+      <button class="step" type="button" id="billUp" aria-label="Increase bill">+</button>
+    </div>
+
+    <div class="row">
+      <div class="label">Tip Percent (%)</div>
+      <button class="step" type="button" id="tipDown" aria-label="Decrease tip percent">-</button>
+      <input class="value" type="number" id="tip" min="0" max="100" step="1" value="20" aria-label="Tip percent">
+      <button class="step" type="button" id="tipUp" aria-label="Increase tip percent">+</button>
+    </div>
+
+    <div class="row">
+      <div class="label">Tip Amount</div>
+      <button class="step" type="button" id="tipAmountDown" aria-label="Decrease tip amount">-</button>
+      <div class="value-wrap">
+        <span class="prefix">$</span>
+        <input class="value money" type="text" id="tipAmount" inputmode="decimal" value="0.00" aria-label="Tip amount">
+      </div>
+      <button class="step" type="button" id="tipAmountUp" aria-label="Increase tip amount">+</button>
+    </div>
+
+    <div class="row highlight">
+      <div class="label">Total Amount</div>
+      <button class="step" type="button" id="totalDown" aria-label="Round total down">-</button>
+      <div class="value-wrap">
+        <span class="prefix">$</span>
+        <input class="value money" type="text" id="totalAmount" inputmode="decimal" value="0.00" aria-label="Total amount">
+      </div>
+      <button class="step" type="button" id="totalUp" aria-label="Round total up">+</button>
+    </div>
+  </div>
+
+  <button class="collapse-toggle" id="advancedToggle" type="button" aria-expanded="false">Show More Settings</button>
+
+  <div class="advanced" id="advancedPanel">
+    <div class="advanced-row">
+      <div class="adv-inline">
+        <label class="adv-label" for="taxAmount">Tax Amount</label>
+        <input class="adv-input" type="text" id="taxAmount" inputmode="decimal" value="0.00" aria-label="Tax amount">
+      </div>
+      <div class="adv-inline">
+        <span class="adv-label">Tip Calculated On</span>
+        <div class="segment" role="group" aria-label="Tip mode">
+          <button id="tipModeBefore" type="button">Before Tax</button>
+          <button id="tipModeAfter" type="button" class="active">After Tax</button>
+        </div>
+      </div>
+      <div class="adv-inline stack">
+        <span class="adv-label">Horror Intensity</span>
+        <div class="segment horror-segment" role="group" aria-label="Horror intensity mode">
+          <button id="horrorAuto" type="button">Auto</button>
+          <button id="horrorSoft" type="button">Light</button>
+          <button id="horrorCurrent" type="button" class="active">Current</button>
+          <button id="horrorExtreme" type="button">Extreme</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="advanced-row">
+      <div class="adv-inline">
+        <label class="adv-label" for="people">No. of People</label>
+        <input class="adv-input" type="number" id="people" min="1" max="99" step="1" value="1" aria-label="Number of people">
+      </div>
+      <div class="adv-inline">
+        <div class="adv-label">Each Person Pays</div>
+        <div class="adv-label" id="eachPays">$0.00</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot" id="statusText">Tip is 20%.</div>
+</div>
+
+<div class="calc-overlay" id="billCalcOverlay" aria-hidden="true">
+  <div class="calc-sheet" role="dialog" aria-modal="true" aria-label="Bill amount calculator">
+    <div class="calc-head">
+      <div class="calc-title" id="calcTitle">Calculator</div>
+      <button class="calc-btn action" type="button" id="billCalcClose">Close</button>
+    </div>
+    <input class="calc-display" type="text" id="billCalcDisplay" inputmode="decimal" autocomplete="off" aria-label="Calculator value" value="0.00">
+    <div class="calc-grid">
+      <button class="calc-btn action" type="button" data-calc="clear">C</button>
+      <button class="calc-btn action" type="button" data-calc="back">⌫</button>
+      <button class="calc-btn action" type="button" data-calc="+1">+1</button>
+      <button class="calc-btn action" type="button" data-calc="+10">+10</button>
+
+      <button class="calc-btn" type="button" data-calc="7">7</button>
+      <button class="calc-btn" type="button" data-calc="8">8</button>
+      <button class="calc-btn" type="button" data-calc="9">9</button>
+      <button class="calc-btn action" type="button" data-calc="00">00</button>
+
+      <button class="calc-btn" type="button" data-calc="4">4</button>
+      <button class="calc-btn" type="button" data-calc="5">5</button>
+      <button class="calc-btn" type="button" data-calc="6">6</button>
+      <button class="calc-btn" type="button" data-calc=".">.</button>
+
+      <button class="calc-btn" type="button" data-calc="1">1</button>
+      <button class="calc-btn" type="button" data-calc="2">2</button>
+      <button class="calc-btn" type="button" data-calc="3">3</button>
+      <button class="calc-btn primary" type="button" id="billCalcApply">Use</button>
+
+      <button class="calc-btn" type="button" data-calc="0" style="grid-column: span 4;">0</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const STORAGE_KEY = 'tip-or-treat-compact-v2';
+
+  const billInput = document.getElementById('bill');
+  const tipPercentInput = document.getElementById('tip');
+  const tipAmountInput = document.getElementById('tipAmount');
+  const totalInput = document.getElementById('totalAmount');
+  const taxInput = document.getElementById('taxAmount');
+  const peopleInput = document.getElementById('people');
+  const eachPaysEl = document.getElementById('eachPays');
+  const statusTextEl = document.getElementById('statusText');
+  const modeBadgeEl = document.getElementById('modeBadge');
+  const tipModeBeforeBtn = document.getElementById('tipModeBefore');
+  const tipModeAfterBtn = document.getElementById('tipModeAfter');
+  const horrorAutoBtn = document.getElementById('horrorAuto');
+  const horrorSoftBtn = document.getElementById('horrorSoft');
+  const horrorCurrentBtn = document.getElementById('horrorCurrent');
+  const horrorExtremeBtn = document.getElementById('horrorExtreme');
+  const advancedToggle = document.getElementById('advancedToggle');
+  const advancedPanel = document.getElementById('advancedPanel');
+  const billCalcOverlay = document.getElementById('billCalcOverlay');
+  const calcTitleEl = document.getElementById('calcTitle');
+  const billCalcDisplay = document.getElementById('billCalcDisplay');
+  const billCalcClose = document.getElementById('billCalcClose');
+  const billCalcApply = document.getElementById('billCalcApply');
+
+  let billCalcBuffer = '0';
+  let activeCalcTarget = 'bill';
+  let horrorAutoTimer = null;
+
+  const calcConfig = {
+    bill: {
+      title: 'Bill Amount',
+      decimals: 2,
+      getValue: () => parseFloatSafe(billInput.value),
+      applyValue: (value) => {
+        billInput.value = formatMoney(value);
+        appState.calculationMode = 'percent';
+        calculate();
+      }
+    },
+    tipPercent: {
+      title: 'Tip Percent (%)',
+      decimals: 0,
+      getValue: () => parseFloatSafe(tipPercentInput.value),
+      applyValue: (value) => {
+        tipPercentInput.value = String(clamp(Math.round(value), 0, 100));
+        appState.calculationMode = 'percent';
+        calculate();
+      }
+    },
+    tipAmount: {
+      title: 'Tip Amount',
+      decimals: 2,
+      getValue: () => parseFloatSafe(tipAmountInput.value),
+      applyValue: (value) => {
+        tipAmountInput.value = formatMoney(value);
+        appState.calculationMode = 'amount';
+        calculate();
+      }
+    },
+    total: {
+      title: 'Total Amount',
+      decimals: 2,
+      getValue: () => parseFloatSafe(totalInput.value),
+      applyValue: (value) => {
+        applyTotal(value);
+      }
+    },
+    tax: {
+      title: 'Tax Amount',
+      decimals: 2,
+      getValue: () => parseFloatSafe(taxInput.value),
+      applyValue: (value) => {
+        taxInput.value = formatMoney(value);
+        appState.calculationMode = 'percent';
+        calculate();
+      }
+    },
+    people: {
+      title: 'No. of People',
+      decimals: 0,
+      getValue: () => parseFloatSafe(peopleInput.value),
+      applyValue: (value) => {
+        peopleInput.value = String(clamp(Math.round(value), 1, 99));
+        calculate();
+      }
+    }
+  };
+
+  const appState = {
+    tipMode: 'after',
+    calculationMode: 'percent',
+    horrorMode: 'auto'
+  };
+
+  function resolveAutoHorrorMode(now = new Date()) {
+    const hour = now.getHours();
+
+    if (hour >= 21 || hour < 6) {
+      return 'extreme';
+    }
+    if (hour >= 16) {
+      return 'current';
+    }
+    return 'soft';
+  }
+
+  function clearHorrorAutoTimer() {
+    if (horrorAutoTimer) {
+      clearTimeout(horrorAutoTimer);
+      horrorAutoTimer = null;
+    }
+  }
+
+  function scheduleHorrorAutoRefresh() {
+    clearHorrorAutoTimer();
+
+    if (appState.horrorMode !== 'auto') {
+      return;
+    }
+
+    const now = new Date();
+    const nextHour = new Date(now);
+    nextHour.setMinutes(0, 2, 0);
+    nextHour.setHours(nextHour.getHours() + 1);
+    const waitMs = Math.max(1000, nextHour.getTime() - now.getTime());
+
+    horrorAutoTimer = setTimeout(() => {
+      if (appState.horrorMode === 'auto') {
+        setHorrorMode('auto', { persist: false });
+      }
+      scheduleHorrorAutoRefresh();
+    }, waitMs);
+  }
+
+  function setHorrorMode(mode, options = {}) {
+    const { persist = true } = options;
+    const nextMode = mode === 'soft' || mode === 'current' || mode === 'extreme' || mode === 'auto'
+      ? mode
+      : 'current';
+    appState.horrorMode = nextMode;
+    const appliedMode = nextMode === 'auto' ? resolveAutoHorrorMode() : nextMode;
+    document.documentElement.setAttribute('data-horror', appliedMode);
+
+    horrorAutoBtn.classList.toggle('active', nextMode === 'auto');
+    horrorSoftBtn.classList.toggle('active', nextMode === 'soft');
+    horrorCurrentBtn.classList.toggle('active', nextMode === 'current');
+    horrorExtremeBtn.classList.toggle('active', nextMode === 'extreme');
+
+    if (persist) {
+      saveState();
+    }
+
+    scheduleHorrorAutoRefresh();
+  }
+
+  function tapHaptic() {
+    if (navigator.vibrate) {
+      navigator.vibrate(10);
+    }
+  }
+
+  function clamp(value, min, max) {
+    return Math.min(max, Math.max(min, value));
+  }
+
+  function parseFloatSafe(value) {
+    const parsed = Number.parseFloat(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+
+  function parseIntSafe(value) {
+    const parsed = Number.parseInt(value, 10);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+
+  function sanitizeDecimal(value, decimals) {
+    const cleaned = String(value).replace(/[^0-9.]/g, '');
+    const [whole, ...rest] = cleaned.split('.');
+    if (!rest.length) {
+      return whole;
+    }
+    return `${whole}.${rest.join('').slice(0, decimals)}`;
+  }
+
+  function formatMoney(value) {
+    return clamp(value, 0, 9999999).toFixed(2);
+  }
+
+  function setTipMode(mode) {
+    appState.tipMode = mode === 'after' ? 'after' : 'before';
+    tipModeBeforeBtn.classList.toggle('active', appState.tipMode === 'before');
+    tipModeAfterBtn.classList.toggle('active', appState.tipMode === 'after');
+    modeBadgeEl.textContent = appState.tipMode === 'after' ? 'After Tax' : 'Before Tax';
+    calculate();
+  }
+
+  function getValues() {
+    return {
+      bill: clamp(parseFloatSafe(billInput.value), 0, 9999999),
+      tipPercent: clamp(parseFloatSafe(tipPercentInput.value), 0, 100),
+      tipAmount: clamp(parseFloatSafe(tipAmountInput.value), 0, 9999999),
+      tax: clamp(parseFloatSafe(taxInput.value), 0, 9999999),
+      people: clamp(parseIntSafe(peopleInput.value) || 1, 1, 99)
+    };
+  }
+
+  function calculate(source = 'auto') {
+    const { bill, tipPercent, tipAmount, tax, people } = getValues();
+    const tipBase = appState.tipMode === 'after' ? bill + tax : bill;
+
+    let nextTipAmount = tipAmount;
+    let nextTipPercent = tipPercent;
+
+    if (appState.calculationMode === 'amount') {
+      nextTipPercent = tipBase > 0 ? (nextTipAmount / tipBase) * 100 : 0;
+      nextTipPercent = clamp(nextTipPercent, 0, 100);
+    } else {
+      nextTipAmount = tipBase * (nextTipPercent / 100);
+    }
+
+    const total = bill + tax + nextTipAmount;
+    const each = people > 0 ? total / people : total;
+
+    const isBillEditing = document.activeElement === billInput && (source === 'bill-input' || source === 'auto');
+    const isTipAmountEditing = document.activeElement === tipAmountInput && (source === 'tip-amount-input' || source === 'auto');
+    const isTaxEditing = document.activeElement === taxInput && (source === 'tax-input' || source === 'auto');
+
+    if (!isBillEditing) {
+      billInput.value = formatMoney(bill);
+    }
+    tipPercentInput.value = String(Math.round(nextTipPercent));
+    if (!isTipAmountEditing) {
+      tipAmountInput.value = formatMoney(nextTipAmount);
+    }
+    totalInput.value = formatMoney(total);
+    if (!isTaxEditing) {
+      taxInput.value = formatMoney(tax);
+    }
+    peopleInput.value = String(people);
+    eachPaysEl.textContent = `$${formatMoney(each)}`;
+    statusTextEl.textContent = `Tip: $${formatMoney(nextTipAmount)} (${Math.round(nextTipPercent)}%)`;
+
+    saveState();
+  }
+
+  function applyTotal(targetTotal) {
+    const { bill, tax } = getValues();
+    const minTotal = bill + tax;
+    const nextTotal = Math.max(targetTotal, minTotal);
+    const nextTip = Math.max(0, nextTotal - bill - tax);
+    tipAmountInput.value = formatMoney(nextTip);
+    appState.calculationMode = 'amount';
+    calculate();
+  }
+
+  function roundTotalUp() {
+    const currentTotal = clamp(parseFloatSafe(totalInput.value), 0, 9999999);
+    const next = Math.abs(currentTotal - Math.ceil(currentTotal)) < 0.0001
+      ? currentTotal + 1
+      : Math.ceil(currentTotal);
+    applyTotal(next);
+  }
+
+  function roundTotalDown() {
+    const currentTotal = clamp(parseFloatSafe(totalInput.value), 0, 9999999);
+    const next = Math.abs(currentTotal - Math.floor(currentTotal)) < 0.0001
+      ? currentTotal - 1
+      : Math.floor(currentTotal);
+    applyTotal(Math.max(0, next));
+  }
+
+  function stepMoney(inputEl, delta) {
+    const value = clamp(parseFloatSafe(inputEl.value) + delta, 0, 9999999);
+    inputEl.value = formatMoney(value);
+  }
+
+  function stepMoneyToWhole(inputEl, direction) {
+    const current = clamp(parseFloatSafe(inputEl.value), 0, 9999999);
+    let next = current;
+
+    if (direction > 0) {
+      next = Math.abs(current - Math.ceil(current)) < 0.0001
+        ? current + 1
+        : Math.ceil(current);
+    } else {
+      next = Math.abs(current - Math.floor(current)) < 0.0001
+        ? current - 1
+        : Math.floor(current);
+    }
+
+    inputEl.value = formatMoney(clamp(next, 0, 9999999));
+  }
+
+  function getActiveCalcDecimals() {
+    return calcConfig[activeCalcTarget]?.decimals ?? 2;
+  }
+
+  function formatCalcDisplay(value) {
+    const decimals = getActiveCalcDecimals();
+    if (decimals === 0) {
+      const numeric = clamp(parseFloatSafe(value), 0, 9999999);
+      return String(Math.round(numeric));
+    }
+
+    const text = String(value);
+    if (text.endsWith('.')) {
+      return text;
+    }
+
+    const [whole, fraction = ''] = text.split('.');
+    if (text.includes('.')) {
+      return `${whole || '0'}.${fraction.slice(0, decimals)}`;
+    }
+
+    const numeric = clamp(parseFloatSafe(text), 0, 9999999);
+    return numeric.toFixed(2);
+  }
+
+  function normalizeCalcBuffer() {
+    let cleaned = String(billCalcBuffer).replace(/[^0-9.]/g, '');
+    const parts = cleaned.split('.');
+    if (parts.length > 2) {
+      cleaned = `${parts[0]}.${parts.slice(1).join('')}`;
+    }
+
+    const hasTrailingDot = cleaned.endsWith('.');
+    const [whole, decimals = ''] = cleaned.split('.');
+    const wholeNorm = whole.length ? whole : '0';
+    const decimalsNorm = decimals.slice(0, getActiveCalcDecimals());
+    if (getActiveCalcDecimals() > 0 && hasTrailingDot && decimalsNorm.length === 0) {
+      billCalcBuffer = `${wholeNorm}.`;
+    } else {
+      billCalcBuffer = decimalsNorm.length ? `${wholeNorm}.${decimalsNorm}` : wholeNorm;
+    }
+
+    if (getActiveCalcDecimals() === 0) {
+      billCalcBuffer = wholeNorm;
+    }
+  }
+
+  function syncBillCalcDisplay() {
+    normalizeCalcBuffer();
+    billCalcDisplay.value = formatCalcDisplay(billCalcBuffer);
+  }
+
+  function openBillCalculator(targetKey) {
+    activeCalcTarget = targetKey;
+    const cfg = calcConfig[targetKey] || calcConfig.bill;
+    calcTitleEl.textContent = `${cfg.title} Calculator`;
+    billCalcBuffer = String(cfg.getValue() || 0);
+    syncBillCalcDisplay();
+    billCalcDisplay.setAttribute('inputmode', getActiveCalcDecimals() === 0 ? 'numeric' : 'decimal');
+    billCalcOverlay.classList.add('open');
+    billCalcOverlay.setAttribute('aria-hidden', 'false');
+
+    // Allow direct keyboard entry in the calculator input.
+    setTimeout(() => {
+      billCalcDisplay.focus();
+      billCalcDisplay.select();
+    }, 0);
+  }
+
+  function closeBillCalculator() {
+    billCalcOverlay.classList.remove('open');
+    billCalcOverlay.setAttribute('aria-hidden', 'true');
+  }
+
+  function applyBillCalculator() {
+    const cfg = calcConfig[activeCalcTarget] || calcConfig.bill;
+    const value = clamp(parseFloatSafe(billCalcBuffer), 0, 9999999);
+    cfg.applyValue(value);
+
+    // Quick success micro-feedback before dismiss.
+    const originalLabel = billCalcApply.textContent;
+    billCalcApply.textContent = 'Applied';
+    billCalcApply.classList.add('success');
+    setTimeout(() => {
+      billCalcApply.textContent = originalLabel;
+      billCalcApply.classList.remove('success');
+      closeBillCalculator();
+    }, 300);
+  }
+
+  function onBillCalcKey(key) {
+    tapHaptic();
+
+    if (key === 'clear') {
+      billCalcBuffer = '0';
+      syncBillCalcDisplay();
+      return;
+    }
+
+    if (key === 'back') {
+      billCalcBuffer = billCalcBuffer.length > 1 ? billCalcBuffer.slice(0, -1) : '0';
+      if (billCalcBuffer === '-' || billCalcBuffer === '') {
+        billCalcBuffer = '0';
+      }
+      syncBillCalcDisplay();
+      return;
+    }
+
+    if (key === '+1' || key === '+10') {
+      const increment = key === '+10' ? 10 : 1;
+      billCalcBuffer = String(clamp(parseFloatSafe(billCalcBuffer) + increment, 0, 9999999));
+      syncBillCalcDisplay();
+      return;
+    }
+
+    if (key === '.') {
+      if (getActiveCalcDecimals() === 0) {
+        return;
+      }
+      if (!billCalcBuffer.includes('.')) {
+        billCalcBuffer += '.';
+      }
+      syncBillCalcDisplay();
+      return;
+    }
+
+    if (/^\d+$/.test(key)) {
+      if (billCalcBuffer === '0') {
+        billCalcBuffer = key;
+      } else {
+        billCalcBuffer += key;
+      }
+      syncBillCalcDisplay();
+    }
+  }
+
+  function saveState() {
+    const payload = {
+      bill: billInput.value,
+      tipPercent: tipPercentInput.value,
+      tipAmount: tipAmountInput.value,
+      totalAmount: totalInput.value,
+      taxAmount: taxInput.value,
+      people: peopleInput.value,
+      tipMode: appState.tipMode,
+      calculationMode: appState.calculationMode,
+      horrorMode: appState.horrorMode
+    };
+
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    } catch (error) {
+      // Ignore storage failures.
+    }
+  }
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) {
+        return;
+      }
+
+      const data = JSON.parse(raw);
+      if (typeof data.bill === 'string') billInput.value = data.bill;
+      if (typeof data.tipPercent === 'string') tipPercentInput.value = data.tipPercent;
+      if (typeof data.tipAmount === 'string') tipAmountInput.value = data.tipAmount;
+      if (typeof data.totalAmount === 'string') totalInput.value = data.totalAmount;
+      if (typeof data.taxAmount === 'string') taxInput.value = data.taxAmount;
+      if (typeof data.people === 'string') peopleInput.value = data.people;
+      // Keep default startup mode as After Tax for real bill usage.
+      appState.tipMode = 'after';
+      if (data.calculationMode === 'percent' || data.calculationMode === 'amount') appState.calculationMode = data.calculationMode;
+      if (data.horrorMode === 'soft' || data.horrorMode === 'current' || data.horrorMode === 'extreme' || data.horrorMode === 'auto') {
+        appState.horrorMode = data.horrorMode;
+      }
+
+      // Always start collapsed for faster in-restaurant use.
+      advancedPanel.classList.remove('visible');
+      advancedToggle.textContent = 'Show More Settings';
+      advancedToggle.setAttribute('aria-expanded', 'false');
+    } catch (error) {
+      // Ignore malformed state.
+    }
+  }
+
+  function attachEvents() {
+    // Core row +/- buttons
+    document.getElementById('billDown').addEventListener('click', () => {
+      tapHaptic();
+      stepMoney(billInput, -1);
+      appState.calculationMode = 'percent';
+      calculate();
+    });
+    document.getElementById('billUp').addEventListener('click', () => {
+      tapHaptic();
+      stepMoney(billInput, 1);
+      appState.calculationMode = 'percent';
+      calculate();
+    });
+
+    document.getElementById('tipDown').addEventListener('click', () => {
+      tapHaptic();
+      tipPercentInput.value = String(clamp(parseIntSafe(tipPercentInput.value) - 1, 0, 100));
+      appState.calculationMode = 'percent';
+      calculate();
+    });
+    document.getElementById('tipUp').addEventListener('click', () => {
+      tapHaptic();
+      tipPercentInput.value = String(clamp(parseIntSafe(tipPercentInput.value) + 1, 0, 100));
+      appState.calculationMode = 'percent';
+      calculate();
+    });
+
+    document.getElementById('tipAmountDown').addEventListener('click', () => {
+      tapHaptic();
+      stepMoneyToWhole(tipAmountInput, -1);
+      appState.calculationMode = 'amount';
+      calculate();
+    });
+    document.getElementById('tipAmountUp').addEventListener('click', () => {
+      tapHaptic();
+      stepMoneyToWhole(tipAmountInput, 1);
+      appState.calculationMode = 'amount';
+      calculate();
+    });
+
+    document.getElementById('totalDown').addEventListener('click', () => {
+      tapHaptic();
+      roundTotalDown();
+    });
+    document.getElementById('totalUp').addEventListener('click', () => {
+      tapHaptic();
+      roundTotalUp();
+    });
+
+    // Calculator entry for all numeric fields.
+    [
+      [billInput, 'bill'],
+      [tipPercentInput, 'tipPercent'],
+      [tipAmountInput, 'tipAmount'],
+      [totalInput, 'total'],
+      [taxInput, 'tax'],
+      [peopleInput, 'people']
+    ].forEach(([inputEl, targetKey]) => {
+      inputEl.setAttribute('readonly', 'readonly');
+      inputEl.addEventListener('click', () => openBillCalculator(targetKey));
+      inputEl.addEventListener('focus', () => {
+        inputEl.blur();
+        openBillCalculator(targetKey);
+      });
+    });
+
+    tipModeBeforeBtn.addEventListener('click', () => setTipMode('before'));
+    tipModeAfterBtn.addEventListener('click', () => setTipMode('after'));
+    horrorAutoBtn.addEventListener('click', () => setHorrorMode('auto'));
+    horrorSoftBtn.addEventListener('click', () => setHorrorMode('soft'));
+    horrorCurrentBtn.addEventListener('click', () => setHorrorMode('current'));
+    horrorExtremeBtn.addEventListener('click', () => setHorrorMode('extreme'));
+
+    billCalcOverlay.addEventListener('click', (event) => {
+      if (event.target === billCalcOverlay) {
+        closeBillCalculator();
+      }
+    });
+    billCalcClose.addEventListener('click', () => {
+      tapHaptic();
+      closeBillCalculator();
+    });
+    billCalcApply.addEventListener('click', () => {
+      tapHaptic();
+      applyBillCalculator();
+    });
+
+    billCalcDisplay.addEventListener('input', () => {
+      let typed = sanitizeDecimal(billCalcDisplay.value, getActiveCalcDecimals());
+      if (getActiveCalcDecimals() === 0) {
+        typed = typed.split('.')[0];
+      }
+      billCalcBuffer = typed || '0';
+    });
+    billCalcDisplay.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        tapHaptic();
+        applyBillCalculator();
+      }
+    });
+
+    document.querySelectorAll('[data-calc]').forEach((button) => {
+      button.addEventListener('click', () => {
+        onBillCalcKey(button.dataset.calc);
+      });
+    });
+
+    advancedToggle.addEventListener('click', () => {
+      const nextVisible = !advancedPanel.classList.contains('visible');
+      advancedPanel.classList.toggle('visible', nextVisible);
+      advancedToggle.textContent = nextVisible ? 'Hide More Settings' : 'Show More Settings';
+      advancedToggle.setAttribute('aria-expanded', String(nextVisible));
+      saveState();
+    });
+  }
+
+  loadState();
+  setHorrorMode(appState.horrorMode);
+  setTipMode('after');
+  attachEvents();
+  calculate();
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', async () => {
+      try {
+        const registration = await navigator.serviceWorker.register('./sw.js');
+        registration.update();
+      } catch (error) {
+        // Ignore service worker issues in unsupported environments.
+      }
+    });
+  }
+</script>
+</body>
+</html>
